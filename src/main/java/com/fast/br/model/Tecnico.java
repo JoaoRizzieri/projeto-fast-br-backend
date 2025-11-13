@@ -34,5 +34,4 @@ public class Tecnico {
     @Column(name = "senha", length = 100)
     private String senha;
 
-
 }
