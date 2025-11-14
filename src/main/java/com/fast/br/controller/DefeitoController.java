@@ -34,10 +34,10 @@ public class DefeitoController {
     }
 
     @PostMapping
-    public DefeitoDTO criar(@RequestBody DefeitoDTO dto) {
-        Defeito obj = mapper.toEntity(dto);
-        obj = repository.save(obj);
-        return mapper.toDto(obj);
+    public List<DefeitoDTO> criar(@RequestBody List<DefeitoDTO> dtos) {
+        List<Defeito> entidades = dtos.stream().map(mapper::toEntity).collect(Collectors.toList());
+        List<Defeito> salvos = repository.saveAll(entidades);
+        return salvos.stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
     @PutMapping("/{id}")
