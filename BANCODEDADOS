@@ -51,7 +51,8 @@ CREATE TABLE ordens_servico (
     data_segunda_visita DATE,
     servico_finalizado BOOLEAN DEFAULT 0,
     pendencia TEXT,
-    observacoes_tecnico TEXT,
+    observacoes_tecnico LONGTEXT, 
+    assinatura_base64 LONGTEXT, 
     FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
     FOREIGN KEY (id_tecnico) REFERENCES tecnicos(id_tecnico)
 );
@@ -79,3 +80,14 @@ CREATE TABLE materiais_utilizados (
     valor_total DECIMAL(10,2),
     FOREIGN KEY (id_os) REFERENCES ordens_servico(id_os)
 );
+
+-- se nao quiser apagar o banco de dados e fazer de novo é so rodar os 3 comandos abaixo
+
+
+-- USE ordens_servico;
+
+-- Adiciona a coluna de assinatura
+-- ALTER TABLE ordens_servico ADD COLUMN assinatura_base64 LONGTEXT;
+
+-- Aumenta a capacidade da coluna de observações para caber as fotos das despesas
+-- ALTER TABLE ordens_servico MODIFY COLUMN observacoes_tecnico LONGTEXT;

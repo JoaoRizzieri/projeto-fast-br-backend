@@ -14,17 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service // Anotação que identifica esta classe como um componente de serviço do Spring
-@AllArgsConstructor // Lombok para injeção de dependências via construtor
+@Service
+@AllArgsConstructor
 public class OrdemServicoService {
 
-    // O serviço agora é quem gerencia os repositórios e mappers
     private final OrdemServicoRepository repository;
     private final ClienteRepository clienteRepository;
     private final TecnicoRepository tecnicoRepository;
     private final OrdemServicoMapper mapper;
 
-    // Métodos que apenas leem dados podem ser otimizados com readOnly = true
     @Transactional(readOnly = true)
     public List<OrdemServicoDTO> listarTodos() {
         return repository.findAll().stream()
@@ -34,13 +32,11 @@ public class OrdemServicoService {
 
     @Transactional(readOnly = true)
     public OrdemServicoDTO buscarPorId(Long id) {
-        // É uma boa prática usar uma exceção mais específica, mas vamos manter a original por enquanto
         OrdemServico obj = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de Serviço não encontrada com ID: " + id));
         return mapper.toDto(obj);
     }
 
-    // Métodos que modificam dados devem ser transacionais para garantir a integridade
     @Transactional
     public OrdemServicoDTO criar(OrdemServicoRequestDTO dto) {
         // 1. Buscar entidades relacionadas
@@ -83,7 +79,7 @@ public class OrdemServicoService {
             ordemServico.setMateriais(materiais);
         }
 
-        // 4. Salvar a entidade pai (o JPA/Hibernate salvará as filhas em cascata)
+        // 4. Salvar a entidade pai
         OrdemServico salvo = repository.save(ordemServico);
         return mapper.toDto(salvo);
     }
@@ -110,8 +106,9 @@ public class OrdemServicoService {
         osExistente.setDataSegundaVisita(dto.getDataSegundaVisita());
         osExistente.setServicoFinalizado(dto.getServicoFinalizado());
         osExistente.setPendencia(dto.getPendencia());
+        osExistente.setAssinaturaBase64(dto.getAssinaturaBase64());
 
-        // 3. Atualiza os relacionamentos simples (Cliente e Técnico).
+
         if (dto.getCliente() != null && dto.getCliente().getIdCliente() != null) {
             Cliente cliente = clienteRepository.findById(dto.getCliente().getIdCliente())
                     .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + dto.getCliente().getIdCliente()));
@@ -149,7 +146,7 @@ public class OrdemServicoService {
             });
         }
 
-        // 5. Salva a entidade. O JPA/Hibernate cuidará de gerar os SQLs de UPDATE, DELETE e INSERT necessários.
+        // 5. Salva a entidade.
         OrdemServico osSalva = repository.save(osExistente);
 
         // 6. Retorna o DTO atualizado.
@@ -158,7 +155,6 @@ public class OrdemServicoService {
 
     @Transactional
     public void deletar(Long id) {
-        // Verifica se o registro existe antes de tentar deletar para evitar exceções
         if (!repository.existsById(id)) {
             throw new RuntimeException("Ordem de Serviço não encontrada com ID: " + id);
         }

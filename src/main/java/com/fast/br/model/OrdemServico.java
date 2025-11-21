@@ -68,6 +68,9 @@ public class OrdemServico {
     @Column(name = "observacoes_tecnico", columnDefinition = "TEXT")
     private String observacoesTecnico;
 
+    @Column(name = "assinatura_base64", columnDefinition = "LONGTEXT")
+    private String assinaturaBase64;
+
     // Relacionamentos inversos
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Defeito> defeitos;

@@ -38,4 +38,6 @@ public class OrdemServicoDTO {
     private List<DefeitoDTO> defeitos;
     private List<MaterialUtilizadoDTO> materiais;
 
+    // --- Assinaturas em base 64 ---
+    private String assinaturaBase64;
 }
