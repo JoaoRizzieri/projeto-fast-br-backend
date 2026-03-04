@@ -51,9 +51,11 @@ public class OrdemServicoController {
     }
 
     @GetMapping("/minhas-os")
-    public ResponseEntity<List<OrdemServicoDTO>> listarMinhasOrdens(Authentication authentication) {
+    public ResponseEntity<List<OrdemServicoDTO>> listarMinhasOrdens(
+            Authentication authentication,
+            @RequestParam(required = false) String status) {
         Long idTecnico = (Long) authentication.getDetails();
-        List<OrdemServicoDTO> lista = service.listarMinhasOrdens(idTecnico);
+        List<OrdemServicoDTO> lista = service.listarMinhasOrdens(idTecnico, status);
         return ResponseEntity.ok(lista);
     }
 }

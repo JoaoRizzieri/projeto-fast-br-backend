@@ -9,5 +9,11 @@ import java.util.Optional;
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long> {
     List<OrdemServico> findByTecnicoIdTecnico(Long idTecnico);
 
+    List<OrdemServico> findByTecnicoIdTecnicoAndServicoFinalizado(Long idTecnico, Boolean servicoFinalizado);
+
+    List<OrdemServico> findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNull(Long idTecnico, Boolean servicoFinalizado);
+
+    List<OrdemServico> findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNotNull(Long idTecnico, Boolean servicoFinalizado);
+
 }
 

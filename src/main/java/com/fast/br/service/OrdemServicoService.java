@@ -162,9 +162,28 @@ public class OrdemServicoService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrdemServicoDTO> listarMinhasOrdens(Long idTecnico) {
-        return repository.findByTecnicoIdTecnico(idTecnico)
-                .stream()
+    public List<OrdemServicoDTO> listarMinhasOrdens(Long idTecnico, String status) {
+        List<OrdemServico> ordens;
+
+        if (status == null || status.isEmpty()) {
+            ordens = repository.findByTecnicoIdTecnico(idTecnico);
+        } else {
+            switch (status) {
+                case "iniciar":
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNull(idTecnico, false);
+                    break;
+                case "em_andamento":
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNotNull(idTecnico, false);
+                    break;
+                case "concluido":
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizado(idTecnico, true);
+                    break;
+                default:
+                    ordens = repository.findByTecnicoIdTecnico(idTecnico);
+            }
+        }
+
+        return ordens.stream()
                 .map(mapper::toDto)
                 .toList();
     }
