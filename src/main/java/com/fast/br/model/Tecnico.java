@@ -34,4 +34,15 @@ public class Tecnico {
     @Column(name = "senha", length = 100)
     private String senha;
 
+    @Column(name = "valor_hora_trabalhada")
+    private Double valorHoraTrabalhada = 50.0;
+
+    @Column(name = "valor_deslocamento")
+    private Double valorDeslocamento = 30.0;
+
+    @Column(name = "valor_por_km")
+    private Double valorPorKm = 0.75;
+
+    @Column(name = "valor_hora_extra")
+    private Double valorHoraExtra = 75.0;
 }

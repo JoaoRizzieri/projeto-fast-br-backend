@@ -30,6 +30,7 @@ public class OrdemServicoDTO {
 
     // --- Status da Ordem de Serviço ---
     private Boolean servicoFinalizado;
+    private String status; // pendente, em_andamento, aguardando_peca, finalizada, cancelada
     private String pendencia;
 
     // --- Relacionamentos ---

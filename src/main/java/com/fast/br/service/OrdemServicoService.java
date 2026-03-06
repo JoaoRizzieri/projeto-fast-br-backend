@@ -1,6 +1,7 @@
 package com.fast.br.service;
 
 import com.fast.br.dto.OrdemServicoDTO;
+import com.fast.br.dto.request.CustosTecnicoRequestDTO;
 import com.fast.br.dto.request.OrdemServicoRequestDTO;
 import com.fast.br.mapper.OrdemServicoMapper;
 import com.fast.br.model.*;
@@ -186,5 +187,76 @@ public class OrdemServicoService {
         return ordens.stream()
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public OrdemServicoDTO atualizarStatus(Long id, String status, String observacao) {
+        OrdemServico os = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ordem de Serviço não encontrada com ID: " + id));
+        
+        os.setStatus(status);
+        if (observacao != null && !observacao.isEmpty()) {
+            os.setPendencia(observacao);
+        }
+        
+        // Atualiza servicoFinalizado baseado no status
+        if ("finalizada".equals(status) || "cancelada".equals(status)) {
+            os.setServicoFinalizado(true);
+        } else {
+            os.setServicoFinalizado(false);
+        }
+        
+        OrdemServico atualizado = repository.save(os);
+        return mapper.toDto(atualizado);
+    }
+
+    @Transactional
+    public OrdemServicoDTO salvarCustosTecnico(Long id, CustosTecnicoRequestDTO custos) {
+        OrdemServico os = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ordem de Serviço não encontrada com ID: " + id));
+        
+        // Salvar custos nas observações do técnico (em formato JSON)
+        StringBuilder observacoes = new StringBuilder();
+        
+        if (custos.getNomeAjudante() != null) {
+            os.setTecnico(tecnicoRepository.findByTecnicoAjudante(custos.getNomeAjudante()));
+        }
+        
+        if (custos.getCustosDeslocamento() != null) {
+            observacoes.append("Deslocamento: ").append(custos.getCustosDeslocamento().getTotalHoras())
+                      .append(" - R$ ").append(custos.getCustosDeslocamento().getTotalRs()).append("; ");
+        }
+        
+        if (custos.getCustosHoraTrabalhada() != null) {
+            observacoes.append("Hora Trabalhada: ").append(custos.getCustosHoraTrabalhada().getTotalHoras())
+                      .append(" - R$ ").append(custos.getCustosHoraTrabalhada().getTotalRs()).append("; ");
+        }
+        
+        if (custos.getCustosKm() != null) {
+            observacoes.append("KM: ").append(custos.getCustosKm().getKm())
+                      .append(" - R$ ").append(custos.getCustosKm().getTotalRs()).append("; ");
+        }
+        
+        if (custos.getValorTotalGeral() != null) {
+            observacoes.append("Total: R$ ").append(custos.getValorTotalGeral());
+        }
+        
+        os.setObservacoesTecnico(observacoes.toString());
+        
+        // Salvar materiais
+        if (custos.getDespesasMateriais() != null && !custos.getDespesasMateriais().isEmpty()) {
+            custos.getDespesasMateriais().forEach(m -> {
+                MaterialUtilizado material = new MaterialUtilizado();
+                material.setNomeMaterial(m.getNomeMaterial());
+                material.setQuantidade(m.getQuantidade());
+                material.setValorUnitario(m.getValorUnitario());
+                material.setValorTotal(m.getQuantidade() * m.getValorUnitario());
+                material.setOrdemServico(os);
+                os.getMateriais().add(material);
+            });
+        }
+        
+        OrdemServico atualizado = repository.save(os);
+        return mapper.toDto(atualizado);
     }
 }

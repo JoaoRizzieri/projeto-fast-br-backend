@@ -1,21 +1,22 @@
 package com.fast.br.controller;
 
 import com.fast.br.dto.OrdemServicoDTO;
+import com.fast.br.dto.request.CustosTecnicoRequestDTO;
 import com.fast.br.dto.request.OrdemServicoRequestDTO;
-import com.fast.br.service.OrdemServicoService; // Importa a nova classe de serviço
+import com.fast.br.service.OrdemServicoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ordens-servico")
-@AllArgsConstructor // Lombok para injeção de dependências
+@AllArgsConstructor
 public class OrdemServicoController {
 
-    // O Controller agora depende APENAS do Service
     private final OrdemServicoService service;
 
     @GetMapping
@@ -33,7 +34,6 @@ public class OrdemServicoController {
     @PostMapping
     public ResponseEntity<OrdemServicoDTO> criar(@RequestBody OrdemServicoRequestDTO dto) {
         OrdemServicoDTO novoDto = service.criar(dto);
-        // Retorna o status 201 Created, que é o padrão para criação de recursos
         return new ResponseEntity<>(novoDto, HttpStatus.CREATED);
     }
 
@@ -46,7 +46,6 @@ public class OrdemServicoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable("id") Long id) {
         service.deletar(id);
-        // Retorna o status 204 No Content, padrão para deleção bem-sucedida
         return ResponseEntity.noContent().build();
     }
 
@@ -57,5 +56,19 @@ public class OrdemServicoController {
         Long idTecnico = (Long) authentication.getDetails();
         List<OrdemServicoDTO> lista = service.listarMinhasOrdens(idTecnico, status);
         return ResponseEntity.ok(lista);
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<OrdemServicoDTO> atualizarStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> request) {
+        String status = request.get("status");
+        String observacao = request.get("observacao");
+        OrdemServicoDTO dto = service.atualizarStatus(id, status, observacao);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/{id}/custos-tecnico")
+    public ResponseEntity<OrdemServicoDTO> salvarCustosTecnico(@PathVariable("id") Long id, @RequestBody CustosTecnicoRequestDTO custos) {
+        OrdemServicoDTO dto = service.salvarCustosTecnico(id, custos);
+        return ResponseEntity.ok(dto);
     }
 }
