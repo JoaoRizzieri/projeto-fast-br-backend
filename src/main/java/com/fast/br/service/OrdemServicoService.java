@@ -9,12 +9,16 @@ import com.fast.br.repository.ClienteRepository;
 import com.fast.br.repository.OrdemServicoRepository;
 import com.fast.br.repository.TecnicoRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class OrdemServicoService {
@@ -25,14 +29,14 @@ public class OrdemServicoService {
     private final OrdemServicoMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<OrdemServicoDTO> listarTodos() {
-        return repository.findAll().stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+    public Page<OrdemServicoDTO> listarTodos(Pageable pageable) {
+        log.info("Listando todas as ordens de serviço - página {} tamanho {}", pageable.getPageNumber(), pageable.getPageSize());
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)
     public OrdemServicoDTO buscarPorId(Long id) {
+        log.info("Buscando OS por ID: {}", id);
         OrdemServico obj = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de Serviço não encontrada com ID: " + id));
         return mapper.toDto(obj);
@@ -40,6 +44,8 @@ public class OrdemServicoService {
 
     @Transactional
     public OrdemServicoDTO criar(OrdemServicoRequestDTO dto) {
+        log.info("Criando nova OS para cliente {} e técnico {}", dto.getIdCliente(), dto.getIdTecnico());
+        
         // 1. Buscar entidades relacionadas
         Cliente cliente = clienteRepository.findById(dto.getIdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + dto.getIdCliente()));
@@ -156,37 +162,39 @@ public class OrdemServicoService {
 
     @Transactional
     public void deletar(Long id) {
+        log.info("Deletando OS com ID: {}", id);
         if (!repository.existsById(id)) {
             throw new RuntimeException("Ordem de Serviço não encontrada com ID: " + id);
         }
         repository.deleteById(id);
+        log.info("OS {} deletada com sucesso", id);
     }
 
     @Transactional(readOnly = true)
-    public List<OrdemServicoDTO> listarMinhasOrdens(Long idTecnico, String status) {
-        List<OrdemServico> ordens;
+    public Page<OrdemServicoDTO> listarMinhasOrdens(Long idTecnico, String status, Pageable pageable) {
+        log.info("Listando OS do técnico {} - status: {}, página: {}", idTecnico, status, pageable.getPageNumber());
+        
+        Page<OrdemServico> ordens;
 
         if (status == null || status.isEmpty()) {
-            ordens = repository.findByTecnicoIdTecnico(idTecnico);
+            ordens = repository.findByTecnicoIdTecnico(idTecnico, pageable);
         } else {
             switch (status) {
                 case "iniciar":
-                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNull(idTecnico, false);
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNull(idTecnico, false, pageable);
                     break;
                 case "em_andamento":
-                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNotNull(idTecnico, false);
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizadoAndDataPrimeiraVisitaIsNotNull(idTecnico, false, pageable);
                     break;
                 case "concluido":
-                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizado(idTecnico, true);
+                    ordens = repository.findByTecnicoIdTecnicoAndServicoFinalizado(idTecnico, true, pageable);
                     break;
                 default:
-                    ordens = repository.findByTecnicoIdTecnico(idTecnico);
+                    ordens = repository.findByTecnicoIdTecnico(idTecnico, pageable);
             }
         }
 
-        return ordens.stream()
-                .map(mapper::toDto)
-                .toList();
+        return ordens.map(mapper::toDto);
     }
 
     @Transactional
