@@ -52,4 +52,11 @@ public class DefeitoController {
     public void deletar(@PathVariable("id") Long id) {
         repository.deleteById(id);
     }
+
+    @GetMapping("/os/{idOs}/detalhes")
+    public List<DefeitoDTO> buscarPorOs(@PathVariable("idOs") Long idOs) {
+        return repository.findByOrdemServicoIdOs(idOs).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

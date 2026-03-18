@@ -5,6 +5,7 @@ import com.fast.br.dto.request.TecnicoRequestDTO;
 import com.fast.br.mapper.TecnicoMapper;
 import com.fast.br.model.Tecnico;
 import com.fast.br.repository.TecnicoRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -27,6 +28,12 @@ public class TecnicoController {
     @GetMapping
     public List<TecnicoDTO> listarTodos() {
         return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/configuracao")
+    public TecnicoDTO buscarMinhaConfiguracao(Authentication auth) {
+        Long idTecnico = (Long) auth.getDetails();
+        return buscarConfiguracao(idTecnico);
     }
 
     @PostMapping
