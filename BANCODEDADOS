@@ -28,7 +28,11 @@ CREATE TABLE tecnicos (
     email VARCHAR(100),
     nome_ajudante VARCHAR(100),
     telefone_ajudante VARCHAR(20),
-    senha VARCHAR(100)
+    senha VARCHAR(100),
+    valor_hora_trabalhada DECIMAL(10,2) DEFAULT 50.00,
+    valor_deslocamento DECIMAL(10,2) DEFAULT 30.00,
+    valor_por_km DECIMAL(10,2) DEFAULT 0.75,
+    valor_hora_extra DECIMAL(10,2) DEFAULT 75.00
 );
 
 -- ===============================
@@ -47,9 +51,10 @@ CREATE TABLE ordens_servico (
     data_abertura DATE NOT NULL,
     descricao_chamado TEXT,
     observacoes_cliente TEXT,
-    data_primeira_visita DATE,
-    data_segunda_visita DATE,
+    data_primeira_visita DATETIME,
+    data_segunda_visita DATETIME,
     servico_finalizado BOOLEAN DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'pendente',  -- pendente, em_andamento, aguardando_peca, finalizada, cancelada
     pendencia TEXT,
     observacoes_tecnico LONGTEXT, 
     assinatura_base64 LONGTEXT, 
@@ -81,13 +86,58 @@ CREATE TABLE materiais_utilizados (
     FOREIGN KEY (id_os) REFERENCES ordens_servico(id_os)
 );
 
--- se nao quiser apagar o banco de dados e fazer de novo é so rodar os 3 comandos abaixo
+-- ===============================
+-- 6. Tabela Fotos OS
+-- ===============================
+CREATE TABLE fotos_os (
+    id_foto INT AUTO_INCREMENT PRIMARY KEY,
+    id_os INT NOT NULL,
+    tipo VARCHAR(20),  -- antes, depois, equipamento
+    url VARCHAR(500),
+    descricao VARCHAR(200),
+    data_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_os) REFERENCES ordens_servico(id_os)
+);
 
+-- ===============================
+-- 7. Tabela Geolocalização
+-- ===============================
+CREATE TABLE geolocalizacao_os (
+    id_geo INT AUTO_INCREMENT PRIMARY KEY,
+    id_os INT NOT NULL,
+    tipo VARCHAR(20),  -- inicio_visita, fim_visita
+    latitude DECIMAL(10,8),
+    longitude DECIMAL(11,8),
+    data_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_os) REFERENCES ordens_servico(id_os)
+);
 
--- USE ordens_servico;
+-- ===============================
+-- 8. Tabela Chat
+-- ===============================
+CREATE TABLE chat_mensagens (
+    id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
+    id_os INT NOT NULL,
+    mensagem TEXT,
+    remetente VARCHAR(20),  -- tecnico, empresa
+    data_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    lida BOOLEAN DEFAULT 0,
+    FOREIGN KEY (id_os) REFERENCES ordens_servico(id_os)
+);
 
--- Adiciona a coluna de assinatura
--- ALTER TABLE ordens_servico ADD COLUMN assinatura_base64 LONGTEXT;
+-- ====================================================================
+-- COMANDOS PARA ATUALIZAR BANCO EXISTENTE (sem perder dados)
+-- ====================================================================
 
--- Aumenta a capacidade da coluna de observações para caber as fotos das despesas
--- ALTER TABLE ordens_servico MODIFY COLUMN observacoes_tecnico LONGTEXT;
+-- Adicionar coluna status na tabela ordens_servico (se não existir)
+-- ALTER TABLE ordens_servico ADD COLUMN status VARCHAR(20) DEFAULT 'pendente';
+
+-- Alterar data_visita para datetime (se estiver como date)
+-- ALTER TABLE ordens_servico MODIFY COLUMN data_primeira_visita DATETIME;
+-- ALTER TABLE ordens_servico MODIFY COLUMN data_segunda_visita DATETIME;
+
+-- Adicionar colunas de configuração na tabela tecnicos (se não existirem)
+-- ALTER TABLE tecnicos ADD COLUMN valor_hora_trabalhada DECIMAL(10,2) DEFAULT 50.00;
+-- ALTER TABLE tecnicos ADD COLUMN valor_deslocamento DECIMAL(10,2) DEFAULT 30.00;
+-- ALTER TABLE tecnicos ADD COLUMN valor_por_km DECIMAL(10,2) DEFAULT 0.75;
+-- ALTER TABLE tecnicos ADD COLUMN valor_hora_extra DECIMAL(10,2) DEFAULT 75.00;

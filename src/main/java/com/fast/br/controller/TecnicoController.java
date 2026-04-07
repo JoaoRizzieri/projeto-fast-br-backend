@@ -5,6 +5,7 @@ import com.fast.br.dto.request.TecnicoRequestDTO;
 import com.fast.br.mapper.TecnicoMapper;
 import com.fast.br.model.Tecnico;
 import com.fast.br.repository.TecnicoRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -29,6 +30,12 @@ public class TecnicoController {
         return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
+    @GetMapping("/configuracao")
+    public TecnicoDTO buscarMinhaConfiguracao(Authentication auth) {
+        Long idTecnico = (Long) auth.getDetails();
+        return buscarConfiguracao(idTecnico);
+    }
+
     @PostMapping
     public TecnicoDTO criar(@RequestBody TecnicoRequestDTO dto) {
         Tecnico tecnico = new Tecnico();
@@ -38,6 +45,13 @@ public class TecnicoController {
         tecnico.setNomeAjudante(dto.getNomeAjudante());
         tecnico.setTelefoneAjudante(dto.getTelefoneAjudante());
         tecnico.setSenha(passwordEncoder.encode(dto.getSenha()));
+        
+        // Valores padrão - podem ser alterados depois via endpoint de configuração
+        tecnico.setValorHoraTrabalhada(50.0);
+        tecnico.setValorDeslocamento(30.0);
+        tecnico.setValorPorKm(0.75);
+        tecnico.setValorHoraExtra(75.0);
+        
         Tecnico salvo = repository.save(tecnico);
         return mapper.toDto(salvo);
     }
@@ -53,6 +67,49 @@ public class TecnicoController {
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
             tecnico.setSenha(passwordEncoder.encode(dto.getSenha()));
         }
+        Tecnico atualizado = repository.save(tecnico);
+        return mapper.toDto(atualizado);
+    }
+
+    @GetMapping("/{id}/configuracao")
+    public TecnicoDTO buscarConfiguracao(@PathVariable Long id) {
+        Tecnico tecnico = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Técnico não encontrado"));
+        
+        // Se não tiver valores configurados, retorna padrão
+        if (tecnico.getValorHoraTrabalhada() == null) {
+            tecnico.setValorHoraTrabalhada(50.0);
+        }
+        if (tecnico.getValorDeslocamento() == null) {
+            tecnico.setValorDeslocamento(30.0);
+        }
+        if (tecnico.getValorPorKm() == null) {
+            tecnico.setValorPorKm(0.75);
+        }
+        if (tecnico.getValorHoraExtra() == null) {
+            tecnico.setValorHoraExtra(75.0);
+        }
+        
+        return mapper.toDto(tecnico);
+    }
+
+    @PutMapping("/{id}/configuracao")
+    public TecnicoDTO atualizarConfiguracao(@PathVariable Long id, @RequestBody TecnicoDTO dto) {
+        Tecnico tecnico = repository.findById(id).orElseThrow();
+        
+        if (dto.getValorHoraTrabalhada() != null) {
+            tecnico.setValorHoraTrabalhada(dto.getValorHoraTrabalhada());
+        }
+        if (dto.getValorDeslocamento() != null) {
+            tecnico.setValorDeslocamento(dto.getValorDeslocamento());
+        }
+        if (dto.getValorPorKm() != null) {
+            tecnico.setValorPorKm(dto.getValorPorKm());
+        }
+        if (dto.getValorHoraExtra() != null) {
+            tecnico.setValorHoraExtra(dto.getValorHoraExtra());
+        }
+        
         Tecnico atualizado = repository.save(tecnico);
         return mapper.toDto(atualizado);
     }

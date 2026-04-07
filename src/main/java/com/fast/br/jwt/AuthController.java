@@ -1,5 +1,6 @@
 package com.fast.br.jwt;
 
+import com.fast.br.dto.TecnicoDTO;
 import com.fast.br.model.Tecnico;
 import com.fast.br.repository.TecnicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,19 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(tecnico.getIdTecnico(), tecnico.getEmail());
-        return ResponseEntity.ok(new TokenResponse(token));
+        
+        // Criar DTO com dados do técnico
+        TecnicoDTO tecnicoDTO = new TecnicoDTO();
+        tecnicoDTO.setIdTecnico(tecnico.getIdTecnico());
+        tecnicoDTO.setNomeTecnico(tecnico.getNomeTecnico());
+        tecnicoDTO.setTelefone(tecnico.getTelefone());
+        tecnicoDTO.setEmail(tecnico.getEmail());
+        tecnicoDTO.setNomeAjudante(tecnico.getNomeAjudante());
+        tecnicoDTO.setTelefoneAjudante(tecnico.getTelefoneAjudante());
+        
+        TokenResponse response = new TokenResponse(token);
+        response.setTecnico(tecnicoDTO);
+        
+        return ResponseEntity.ok(response);
     }
 }

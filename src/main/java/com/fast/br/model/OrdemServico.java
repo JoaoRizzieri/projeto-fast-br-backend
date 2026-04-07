@@ -62,6 +62,9 @@ public class OrdemServico {
     @Column(name = "servico_finalizado")
     private Boolean servicoFinalizado = false;
 
+    @Column(name = "status", length = 20)
+    private String status = "pendente"; // pendente, em_andamento, aguardando_peca, finalizada, cancelada
+
     @Column(name = "pendencia", columnDefinition = "TEXT")
     private String pendencia;
 
