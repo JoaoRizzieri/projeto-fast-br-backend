@@ -22,11 +22,11 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**",
-                                "/tecnicos",
-                                "/clientes",
-                                "ordens_servico",
-                                "/defeitos",
-                                "/materiais").permitAll()
+                                "/tecnicos/**",
+                                "/clientes/**",
+                                "/ordens-servico/**",
+                                "/defeitos/**",
+                                "/materiais/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
