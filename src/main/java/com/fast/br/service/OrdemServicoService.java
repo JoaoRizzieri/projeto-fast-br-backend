@@ -226,10 +226,6 @@ public class OrdemServicoService {
         // Salvar custos nas observações do técnico (em formato JSON)
         StringBuilder observacoes = new StringBuilder();
         
-        if (custos.getNomeAjudante() != null) {
-            os.setTecnico(tecnicoRepository.findByTecnicoAjudante(custos.getNomeAjudante()));
-        }
-        
         if (custos.getCustosDeslocamento() != null) {
             observacoes.append("Deslocamento: ").append(custos.getCustosDeslocamento().getTotalHoras())
                       .append(" - R$ ").append(custos.getCustosDeslocamento().getTotalRs()).append("; ");

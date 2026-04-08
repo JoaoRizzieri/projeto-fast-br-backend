@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 @Data
 public class MaterialUtilizadoRequestDTO {
     private String nomeMaterial;
-    private BigDecimal quantidade;
-    private BigDecimal valorUnitario;
-    private BigDecimal valorTotal;
+    private Double quantidade;
+    private Double valorUnitario;
+    private Double valorTotal;
 }

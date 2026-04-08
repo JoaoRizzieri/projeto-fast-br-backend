@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/materiais")
+@RequestMapping("/catalogo")
 @CrossOrigin(origins = "*")
 public class MaterialCatalogoController {
 

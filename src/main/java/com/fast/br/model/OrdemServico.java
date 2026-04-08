@@ -71,7 +71,7 @@ public class OrdemServico {
     @Column(name = "observacoes_tecnico", columnDefinition = "TEXT")
     private String observacoesTecnico;
 
-    @Column(name = "assinatura_base64", columnDefinition = "LONGTEXT")
+    @Column(name = "assinatura_base64", columnDefinition = "TEXT")
     private String assinaturaBase64;
 
     // Relacionamentos inversos

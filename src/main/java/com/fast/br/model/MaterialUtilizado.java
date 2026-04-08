@@ -24,12 +24,12 @@ public class MaterialUtilizado {
     @Column(name = "nome_material", nullable = false, length = 100)
     private String nomeMaterial;
 
-    @Column(name = "quantidade", precision = 10, scale = 2)
-    private BigDecimal quantidade;
+    @Column(name = "quantidade")
+    private Double quantidade;
 
-    @Column(name = "valor_unitario", precision = 10, scale = 2)
-    private BigDecimal valorUnitario;
+    @Column(name = "valor_unitario")
+    private Double valorUnitario;
 
-    @Column(name = "valor_total", precision = 10, scale = 2)
-    private BigDecimal valorTotal;
+    @Column(name = "valor_total")
+    private Double valorTotal;
 }
