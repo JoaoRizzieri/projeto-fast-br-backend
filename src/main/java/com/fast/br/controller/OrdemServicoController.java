@@ -1,27 +1,26 @@
 package com.fast.br.controller;
 
 import com.fast.br.dto.OrdemServicoDTO;
-import com.fast.br.dto.request.CustosTecnicoRequestDTO;
 import com.fast.br.dto.request.OrdemServicoRequestDTO;
 import com.fast.br.service.OrdemServicoService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/ordens-servico")
-@AllArgsConstructor
 public class OrdemServicoController {
 
     private final OrdemServicoService service;
+
+    public OrdemServicoController(OrdemServicoService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<Page<OrdemServicoDTO>> listarTodos(
@@ -50,28 +49,14 @@ public class OrdemServicoController {
         return new ResponseEntity<>(novoDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<OrdemServicoDTO> atualizarCompletamente(@PathVariable("id") Long id, @RequestBody OrdemServicoDTO dto) {
-        OrdemServicoDTO osAtualizada = service.atualizarCompletamente(id, dto);
-        return ResponseEntity.ok(osAtualizada);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable("id") Long id) {
-        service.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/minhas-os")
     public ResponseEntity<Page<OrdemServicoDTO>> listarMinhasOrdens(
-            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "0") Long idTecnico,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "idOs") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
-        
-        Long idTecnico = (Long) authentication.getDetails();
         
         Sort sort = sortDir.equalsIgnoreCase("asc") 
             ? Sort.by(sortBy).ascending() 
@@ -90,8 +75,14 @@ public class OrdemServicoController {
         return ResponseEntity.ok(dto);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<OrdemServicoDTO> atualizar(@PathVariable("id") Long id, @RequestBody Map<String, Object> request) {
+        OrdemServicoDTO dto = service.atualizar(id, request);
+        return ResponseEntity.ok(dto);
+    }
+
     @PutMapping("/{id}/custos-tecnico")
-    public ResponseEntity<OrdemServicoDTO> salvarCustosTecnico(@PathVariable("id") Long id, @RequestBody CustosTecnicoRequestDTO custos) {
+    public ResponseEntity<OrdemServicoDTO> salvarCustosTecnico(@PathVariable("id") Long id, @RequestBody Map<String, Object> custos) {
         OrdemServicoDTO dto = service.salvarCustosTecnico(id, custos);
         return ResponseEntity.ok(dto);
     }

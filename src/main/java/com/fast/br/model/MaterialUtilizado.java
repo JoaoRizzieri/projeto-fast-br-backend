@@ -1,14 +1,8 @@
 package com.fast.br.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.math.BigDecimal;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "materiais_utilizados")
 public class MaterialUtilizado {
 
@@ -32,4 +26,24 @@ public class MaterialUtilizado {
 
     @Column(name = "valor_total")
     private Double valorTotal;
+
+    public MaterialUtilizado() {}
+
+    public Long getIdMaterial() { return idMaterial; }
+    public void setIdMaterial(Long idMaterial) { this.idMaterial = idMaterial; }
+
+    public OrdemServico getOrdemServico() { return ordemServico; }
+    public void setOrdemServico(OrdemServico ordemServico) { this.ordemServico = ordemServico; }
+
+    public String getNomeMaterial() { return nomeMaterial; }
+    public void setNomeMaterial(String nomeMaterial) { this.nomeMaterial = nomeMaterial; }
+
+    public Double getQuantidade() { return quantidade; }
+    public void setQuantidade(Double quantidade) { this.quantidade = quantidade; }
+
+    public Double getValorUnitario() { return valorUnitario; }
+    public void setValorUnitario(Double valorUnitario) { this.valorUnitario = valorUnitario; }
+
+    public Double getValorTotal() { return valorTotal; }
+    public void setValorTotal(Double valorTotal) { this.valorTotal = valorTotal; }
 }

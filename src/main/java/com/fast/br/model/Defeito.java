@@ -1,13 +1,8 @@
 package com.fast.br.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "defeitos")
 public class Defeito {
 
@@ -25,4 +20,18 @@ public class Defeito {
 
     @Column(name = "descricao", length = 100)
     private String descricao;
+
+    public Defeito() {}
+
+    public Long getIdDefeito() { return idDefeito; }
+    public void setIdDefeito(Long idDefeito) { this.idDefeito = idDefeito; }
+
+    public OrdemServico getOrdemServico() { return ordemServico; }
+    public void setOrdemServico(OrdemServico ordemServico) { this.ordemServico = ordemServico; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 }
